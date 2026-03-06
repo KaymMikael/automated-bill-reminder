@@ -1,6 +1,15 @@
+export interface DatabaseConfig {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  database: string;
+  autoLoadModels: boolean;
+  synchronize: boolean;
+}
+
 export default () => ({
   database: {
-    type: process.env.APP_DB_TYPE,
     host: process.env.APP_DB_HOST,
     port: parseInt(process.env.APP_DB_PORT ?? '5432', 10),
     username: process.env.APP_DB_USERNAME,
