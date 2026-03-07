@@ -12,6 +12,10 @@ export class UsersService {
     return this.userModel.findOne({ where: { email } });
   }
 
+  findById(id: string) {
+    return this.userModel.findByPk(id);
+  }
+
   async createOne(createUserDto: CreateUserDto) {
     const { name, email, password } = createUserDto;
     const SALT = 10;
