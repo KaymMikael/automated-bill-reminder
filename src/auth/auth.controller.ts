@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
 import { type LoginDto, loginSchema } from './dto/login.dto';
@@ -27,5 +37,12 @@ export class AuthController {
   @UseGuards(AuthGuard)
   getCurrentUser(@User() user: IUser) {
     return this.usersService.findById(user.id);
+  }
+
+  @Delete('logout')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  logout(@Res({ passthrough: true }) res: Response) {
+    return this.authService.logout(res);
   }
 }

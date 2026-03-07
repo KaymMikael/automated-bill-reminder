@@ -32,4 +32,8 @@ export class AuthService {
 
     return { message: 'Authenticated', accessToken };
   }
+
+  logout(res: Response) {
+    res.clearCookie('accessToken');
+  }
 }
