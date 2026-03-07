@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration, { DatabaseConfig } from './config/configuration';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
         };
       },
     }),
+    UsersModule,
   ],
   controllers: [],
   providers: [],
