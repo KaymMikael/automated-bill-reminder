@@ -2,9 +2,11 @@ import {
   Column,
   CreatedAt,
   DataType,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
+import { Bill } from 'src/bills/bill.model';
 
 @Table({ timestamps: true, createdAt: true, updatedAt: false })
 export class User extends Model {
@@ -26,4 +28,7 @@ export class User extends Model {
 
   @CreatedAt
   declare createdAt: Date;
+
+  @HasMany(() => Bill)
+  declare bills: Bill[];
 }
