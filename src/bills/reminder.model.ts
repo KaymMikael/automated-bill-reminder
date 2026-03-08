@@ -28,7 +28,7 @@ export class Reminder extends Model {
   @Column({ type: DataType.DECIMAL, allowNull: false })
   declare amount: string;
 
-  @Column({ type: DataType.DATE, allowNull: false })
+  @Column({ type: DataType.DATEONLY, allowNull: false })
   declare remindDate: Date;
 
   @Index
