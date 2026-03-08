@@ -25,9 +25,6 @@ export class Reminder extends Model {
   @Column({ type: DataType.UUID, allowNull: false })
   declare billId: string;
 
-  @Column({ type: DataType.DECIMAL, allowNull: false })
-  declare amount: string;
-
   @Column({ type: DataType.DATEONLY, allowNull: false })
   declare remindDate: Date;
 

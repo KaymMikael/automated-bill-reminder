@@ -50,6 +50,6 @@ export class Bill extends Model {
   @BelongsTo(() => User)
   declare user: User;
 
-  @HasMany(() => Reminder)
+  @HasMany(() => Reminder, { onDelete: 'CASCADE' })
   declare reminders: Reminder[];
 }
