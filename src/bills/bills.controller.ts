@@ -1,10 +1,15 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
 import { BillsService } from './bills.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
 import { type CreateBillDto, createBillSchema } from './dto/create-bill.dto';
 import { User } from 'src/common/decorators/user.decorator';
 import { type IUser } from 'src/auth/auth.inferface';
+import { UUIDParam } from 'src/common/decorators/uuid-param.dto';
+import {
+  type UpdateBillStatusDto,
+  updateBillStatusSchema,
+} from './dto/update-bill-status.dto';
 
 @Controller('bills')
 export class BillsController {
@@ -17,5 +22,20 @@ export class BillsController {
     @User() user: IUser,
   ) {
     return this.billsServices.createOne(createBillDto, user);
+  }
+
+  @Patch('update-status/:billId')
+  @UseGuards(AuthGuard)
+  updateStatus(
+    @UUIDParam('billId') billId: string,
+    @Body(new ZodValidationPipe(updateBillStatusSchema))
+    updateBillStatusDto: UpdateBillStatusDto,
+    @User() user: IUser,
+  ) {
+    return this.billsServices.updateBillStatus(
+      billId,
+      updateBillStatusDto,
+      user,
+    );
   }
 }

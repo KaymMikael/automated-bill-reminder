@@ -1,10 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Bill } from './bill.model';
 import { Reminder } from './reminder.model';
 import { type CreateBillDto } from './dto/create-bill.dto';
 import { type IUser } from 'src/auth/auth.inferface';
 import { isBefore, isEqual, startOfDay, subDays } from 'date-fns';
+import { type UpdateBillStatusDto } from './dto/update-bill-status.dto';
 
 @Injectable()
 export class BillsService {
@@ -51,6 +56,69 @@ export class BillsService {
     return {
       bill,
       message: 'New bill created with valid reminders',
+    };
+  }
+
+  async updateBillStatus(
+    billId: string,
+    updateBillStatusDto: UpdateBillStatusDto,
+    user: IUser,
+  ) {
+    const { id: userId } = user;
+    const { newBillStatus } = updateBillStatusDto;
+    const bill = await this.billModel.findOne({
+      where: { id: billId, userId },
+    });
+
+    if (!bill) {
+      throw new NotFoundException('Bill not found');
+    }
+
+    if (newBillStatus === bill.status) {
+      throw new BadRequestException(
+        'New bill status must be different from current bill status',
+      );
+    }
+
+    if (newBillStatus === 'paid') {
+      await this.reminderModel.destroy({ where: { billId } });
+      const updatedBill = await bill.update({ status: newBillStatus });
+      return { updatedBill, message: 'Bill status updated' };
+    }
+
+    const dueDate = startOfDay(new Date(bill.dueDate));
+    const today = startOfDay(new Date());
+    const threeDaysBefore = subDays(dueDate, 3);
+
+    const reminders: Partial<Reminder>[] = [];
+
+    // Always add due date reminder if still in the future
+    if (isBefore(today, dueDate)) {
+      reminders.push({
+        billId: bill.id,
+        remindDate: dueDate,
+        status: 'pending',
+      });
+    }
+
+    // Add "3 days before" only if it's strictly after today
+    if (isBefore(today, threeDaysBefore)) {
+      reminders.push({
+        billId: bill.id,
+        remindDate: threeDaysBefore,
+        status: 'pending',
+      });
+    }
+
+    if (reminders.length > 0) {
+      await this.reminderModel.bulkCreate(reminders);
+    }
+
+    const updatedBill = await bill.update({ status: newBillStatus });
+
+    return {
+      updatedBill,
+      message: 'Bill status updated',
     };
   }
 }
