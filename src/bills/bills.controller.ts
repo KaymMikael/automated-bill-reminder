@@ -1,4 +1,12 @@
-import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BillsService } from './bills.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
@@ -10,6 +18,10 @@ import {
   type UpdateBillStatusDto,
   updateBillStatusSchema,
 } from './dto/update-bill-status.dto';
+import {
+  type GetUserBillsDto,
+  getUserBillsSchema,
+} from './dto/get-user-bills.dto';
 
 @Controller('bills')
 export class BillsController {
@@ -22,6 +34,16 @@ export class BillsController {
     @User() user: IUser,
   ) {
     return this.billsServices.createOne(createBillDto, user);
+  }
+
+  @Get()
+  @UseGuards(AuthGuard)
+  getUserBills(
+    @User() user: IUser,
+    @Query(new ZodValidationPipe(getUserBillsSchema))
+    searchParams: GetUserBillsDto,
+  ) {
+    return this.billsServices.getUserBills(user, searchParams);
   }
 
   @Patch('update-status/:billId')

@@ -30,9 +30,11 @@ export class Bill extends Model {
   @Column({ type: DataType.STRING, allowNull: false })
   declare description: string;
 
+  @Index
   @Column({ type: DataType.DECIMAL, allowNull: false })
   declare amount: string;
 
+  @Index
   @Column({ type: DataType.DATEONLY, allowNull: false })
   declare dueDate: Date;
 

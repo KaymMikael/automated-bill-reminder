@@ -10,6 +10,8 @@ import { type CreateBillDto } from './dto/create-bill.dto';
 import { type IUser } from 'src/auth/auth.inferface';
 import { isBefore, isEqual, startOfDay, subDays } from 'date-fns';
 import { type UpdateBillStatusDto } from './dto/update-bill-status.dto';
+import { type GetUserBillsDto } from './dto/get-user-bills.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class BillsService {
@@ -119,6 +121,38 @@ export class BillsService {
     return {
       updatedBill,
       message: 'Bill status updated',
+    };
+  }
+
+  async getUserBills(user: IUser, searchParams: GetUserBillsDto) {
+    const LIMIT = 10;
+    const { id: userId } = user;
+    const { page, q, sortedBy, orderBy } = searchParams;
+    const whereClause = { userId } as Record<string, any>;
+
+    if (q) {
+      whereClause.description = { [Op.iLike]: `%${q}%` };
+    }
+
+    const [totalBills, bills] = await Promise.all([
+      this.billModel.count({ where: whereClause }),
+      this.billModel.findAll({
+        limit: LIMIT,
+        offset: (page - 1) * LIMIT,
+        where: whereClause,
+        order: [[sortedBy, orderBy]],
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalBills / LIMIT);
+
+    return {
+      bills,
+      totalBills,
+      totalPages,
+      currentPage: page,
+      nextPage: page < totalPages ? page + 1 : null,
+      prevPage: page > 1 ? page - 1 : null,
     };
   }
 }
