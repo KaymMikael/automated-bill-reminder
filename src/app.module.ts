@@ -6,6 +6,10 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { BillsModule } from './bills/bills.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
+import { RemindersModule } from './reminders/reminders.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -20,6 +24,27 @@ import { JwtModule } from '@nestjs/jwt';
       useFactory: (configService: ConfigService) => {
         const secret = configService.get<string>('jwt.secret');
         return { secret, signOptions: { expiresIn: '7d' } };
+      },
+    }),
+    ScheduleModule.forRoot(),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.ethereal.email',
+        port: 587,
+        auth: {
+          user: 'ines.langosh@ethereal.email',
+          pass: 'qnNbNnbZPjfS2VASkE',
+        },
+      },
+      defaults: {
+        from: 'noreply@remindly.app',
+      },
+      template: {
+        dir: __dirname + '/templates',
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true,
+        },
       },
     }),
     SequelizeModule.forRootAsync({
@@ -41,6 +66,7 @@ import { JwtModule } from '@nestjs/jwt';
     UsersModule,
     AuthModule,
     BillsModule,
+    RemindersModule,
   ],
   controllers: [],
   providers: [],
