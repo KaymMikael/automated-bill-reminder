@@ -97,9 +97,3 @@ APP_JWT_SECRET=supersecretkey
 ## 📝 Notes
 - `synchronize: true` in Sequelize config should **not** be used in production (risk of data loss).
 - Replace Ethereal email credentials with a real SMTP provider for production.
-
----
-
-This gives you a clean, developer‑friendly README that explains what Remindly does, how to run it, and what endpoints exist.  
-
-Do you want me to also add **example API requests (with curl or HTTPie)** so new developers can test login, bill creation, and reminders right away?
